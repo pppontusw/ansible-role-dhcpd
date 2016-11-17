@@ -1,0 +1,12 @@
+- name: install dhcpd
+  apt: name={{item}} state=present
+  with_items:
+    - isc-dhcp-server
+
+- name: set up file
+  copy:
+    content: 'INTERFACES="eth0"'
+    dest: /etc/default/isc-dhcp-server
+    mode: 0644
+  notify: 
+    - restart dhcpd

@@ -1,0 +1,9 @@
+- name: restart dhcpd
+  service: 
+    name: "{{dhcpd_service_name}}" 
+    state: restarted
+
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted

@@ -1,0 +1,25 @@
+- name: include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: dhcpd
+  
+- include: "{{ ansible_os_family }}.yml"
+  tags: dhcpd
+  become: yes
+
+- name: copy dhcpd config
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    mode: 0644
+  notify:
+    - restart dhcpd
+  tags: dhcpd
+  become: yes
+
+- name: enable dhcp service
+  service:
+    name: "{{dhcpd_service_name}}"
+    state: started
+    enabled: yes
+  tags: dhcpd
+  become: yes

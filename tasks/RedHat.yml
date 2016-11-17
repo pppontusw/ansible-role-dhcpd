@@ -1,0 +1,23 @@
+- name: install dhcpd
+  yum: name={{item}} state=present
+  with_items:
+    - dhcp
+    - dhcping
+    - dhcp-devel
+
+- name: enable firewalld service
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  tags: firewalld
+
+- name: configure firewalld
+  firewalld: service=dhcp permanent=true state=enabled
+  notify: restart firewalld
+  tags: firewalld
+
+- name: configure firewalld
+  firewalld: port=647/tcp permanent=true state=enabled
+  notify: restart firewalld
+  tags: firewalld

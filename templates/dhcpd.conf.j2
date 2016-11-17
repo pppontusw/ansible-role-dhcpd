@@ -1,0 +1,53 @@
+#dhcpd.conf
+# {{ansible_managed}}
+authoritative;
+option local-proxy-config code 252 = text;
+
+# fail over configuration
+failover peer "dhcp-backup" { 
+{% if dhcpd_primary is defined and dhcpd_primary %}                                
+         primary;
+         address {{dhcpd_primary_ip}}; # This IP 
+         port 647;
+         peer address {{dhcpd_secondary_ip}}; # Peer IP
+         mclt 3600;
+         split 128;
+{% else %}
+         secondary;
+         address {{dhcpd_secondary_ip}}; # This IP
+         port 647;
+         peer address {{dhcpd_primary_ip}}; # Peer IP
+{% endif %}              
+         peer port 647;
+         max-response-delay 60;
+         max-unacked-updates 10;
+         load balance max seconds 3;
+}
+
+{% for subnet in dhcpd_subnets %}
+subnet {{subnet.dhcpd_subnet}} netmask {{subnet.dhcpd_netmask}} {
+        {% if subnet.dhcpd_domain_name is defined %}
+        option domain-name        "{{subnet.dhcpd_domain_name}}";
+        {% endif %}
+        option domain-name-servers      {% for host in subnet.dhcpd_domain_name_servers %} {{host}}{% if not loop.last  %},{% endif %}{% endfor %};
+        {% if dhcpd_local_proxy_config is defined %}
+        option local-proxy-config "{{dhcpd_local_proxy_config}}";
+        {% endif %}
+        option broadcast-address        {{subnet.dhcpd_broadcast_address}};
+        option routers      {{subnet.dhcpd_routers}};
+  pool {
+      failover peer "dhcp-backup";
+      range {{subnet.dhcpd_range_start}} {{subnet.dhcpd_range_end}};
+{% if subnet.dhcpd_default_lease_time is defined %}
+      default-lease-time        {{subnet.dhcpd_default_lease_time}};
+{% else %}
+      default-lease-time        600;
+{% endif %}
+{% if subnet.dhcpd_max_lease_time is defined %}
+      max-lease-time       {{subnet.dhcpd_max_lease_time}};
+{% else %}
+      max-lease-time            7200;
+{% endif %}
+  }
+}
+{% endfor %}

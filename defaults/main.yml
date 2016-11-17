@@ -1,0 +1,17 @@
+#dhcpd_domain_name: domain.local
+dhcpd_default_lease_time: 600
+dhcpd_max_lease_time: 7200
+#define only on primary server
+#dhcpd_primary: true
+dhcpd_primary_ip: 172.32.1.6
+dhcpd_secondary_ip: 172.32.1.7
+dhcpd_subnet: 172.32.1.0
+dhcpd_netmask: 255.255.255.0
+dhcpd_range_start: 172.32.1.33
+dhcpd_range_end: 172.32.1.200
+dhcpd_domain_name_servers: 
+  - 172.32.1.4
+  - 172.32.1.5
+dhcpd_broadcast_address: 172.32.1.255
+dhcpd_routers: 172.32.1.2
+# dhcpd_local_proxy_config: http://proxy/wpad.dat
